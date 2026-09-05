@@ -166,7 +166,7 @@ const WEEKDAY_TO_DAY_OF_WEEK: Record<string, DayOfWeek> = {
   Sun: "SUN",
 };
 
-function getSaoPauloNow(): { dayOfWeek: DayOfWeek; time: string } {
+export function getSaoPauloNow(): { dayOfWeek: DayOfWeek; time: string } {
   const formatter = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Sao_Paulo",
     weekday: "short",
@@ -184,6 +184,21 @@ function getSaoPauloNow(): { dayOfWeek: DayOfWeek; time: string } {
     dayOfWeek: WEEKDAY_TO_DAY_OF_WEEK[weekday] ?? "MON",
     time: `${hour}:${minute}`,
   };
+}
+
+export function isOpenNow(
+  hours: { dayOfWeek: string; openTime: string | null; closeTime: string | null; isClosed: boolean }[]
+): boolean {
+  const { dayOfWeek, time } = getSaoPauloNow();
+  const today = hours.find((h) => h.dayOfWeek === dayOfWeek);
+  if (!today) return false;
+  return (
+    !today.isClosed &&
+    !!today.openTime &&
+    !!today.closeTime &&
+    time >= today.openTime &&
+    time <= today.closeTime
+  );
 }
 
 async function getOpenNowMap(businessIds: string[]): Promise<Map<string, boolean>> {
