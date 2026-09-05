@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/auth-utils";
+import { PainelNav } from "@/components/business/PainelNav";
 
 export default async function BusinessLayout({
   children,
@@ -6,5 +7,10 @@ export default async function BusinessLayout({
   children: React.ReactNode;
 }) {
   await requireRole(["BUSINESS", "ADMIN"]);
-  return <>{children}</>;
+  return (
+    <>
+      <PainelNav />
+      {children}
+    </>
+  );
 }
