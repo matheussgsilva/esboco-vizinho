@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: esboco-paginas-amarelas-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: esboco_paginas_amarelas
+    ports:
+      - "5433:5432"
+    volumes:
+      - esboco-paginas-amarelas-db-data:/var/lib/postgresql/data
+
+volumes:
+  esboco-paginas-amarelas-db-data:

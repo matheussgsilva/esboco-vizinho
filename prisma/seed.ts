@@ -1,4 +1,7 @@
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
+loadEnv({ path: ".env.local" });
+loadEnv({ path: ".env" });
+
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "../generated/client";
 import type { DayOfWeek } from "../generated/enums";
