@@ -11,6 +11,7 @@ Instalada localmente em `.claude/skills/prisma-database-setup/` (via `npx skills
 - `prisma.config.ts` na raiz define a URL via `env("DATABASE_URL")` (Prisma 7 move a URL do datasource para fora do `schema.prisma`).
 - Driver adapter `@prisma/adapter-pg` + `pg` — não usar a conexão embutida antiga do Prisma 6 e anteriores.
 - `prisma` (CLI) fica em `devDependencies`; só `@prisma/client` é dependência de runtime.
+- `package.json` tem `"postinstall": "prisma generate"` — `generated/` está no `.gitignore` (é output, não código-fonte), então sem esse hook o build da Vercel falha com `Module not found: Can't resolve '../../generated/client'` num checkout limpo (não existe localmente porque a pasta já estava gerada em disco). Rodar `npm install` sempre regenera o client antes do `next build`.
 
 ## Quando reconsultar
 
