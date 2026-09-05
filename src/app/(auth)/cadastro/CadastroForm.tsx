@@ -8,9 +8,15 @@ import { registerAction, type RegisterState } from "./actions";
 
 const INITIAL_STATE: RegisterState = {};
 
-export function CadastroForm({ callbackUrl }: { callbackUrl?: string }) {
+export function CadastroForm({
+  callbackUrl,
+  initialRole = "USER",
+}: {
+  callbackUrl?: string;
+  initialRole?: "USER" | "BUSINESS";
+}) {
   const [state, formAction, isPending] = useActionState(registerAction, INITIAL_STATE);
-  const [role, setRole] = useState<"USER" | "BUSINESS">("USER");
+  const [role, setRole] = useState<"USER" | "BUSINESS">(initialRole);
   const errors = state.fieldErrors ?? {};
 
   return (
