@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Pagination } from "@/components/ui/Pagination";
 import { Button } from "@/components/ui/Button";
 import { PlanBadge } from "@/components/ui/PlanBadge";
+import { SUBSCRIPTION_STATUS_LABELS as STATUS_LABELS } from "@/lib/subscription-labels";
 import type { SubscriptionStatus } from "../../../../../generated/enums";
 
 const PAGE_SIZE = 20;
@@ -15,17 +16,6 @@ const VALID_STATUSES: SubscriptionStatus[] = [
   "INCOMPLETE_EXPIRED",
   "PAUSED",
 ];
-
-const STATUS_LABELS: Record<SubscriptionStatus, string> = {
-  TRIALING: "Em teste",
-  ACTIVE: "Ativa",
-  PAST_DUE: "Pagamento atrasado",
-  CANCELED: "Cancelada",
-  UNPAID: "Não paga",
-  INCOMPLETE: "Incompleta",
-  INCOMPLETE_EXPIRED: "Expirada",
-  PAUSED: "Pausada",
-};
 
 interface AssinaturasSearchParams {
   status?: string;
