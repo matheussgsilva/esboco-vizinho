@@ -1,6 +1,9 @@
 import { SearchBar } from "@/components/search/SearchBar";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { BusinessCard, type BusinessCardData } from "@/components/business/BusinessCard";
+import { BusinessCard } from "@/components/business/BusinessCard";
+import { getFeaturedBusinesses } from "@/lib/search";
+
+export const revalidate = 300;
 
 const CATEGORIES = [
   { slug: "restaurantes", name: "Restaurantes" },
@@ -11,41 +14,9 @@ const CATEGORIES = [
   { slug: "automotivo", name: "Automotivo" },
 ];
 
-// Dados de exemplo — substituídos pela consulta real em lib/search.ts numa próxima iteração.
-const FEATURED_BUSINESSES: BusinessCardData[] = [
-  {
-    slug: "cafe-do-bairro",
-    name: "Café do Bairro",
-    categoryName: "Cafeteria",
-    city: "Porto Alegre, RS",
-    coverImageUrl: null,
-    averageRating: 4.8,
-    reviewCount: 132,
-    isOpenNow: true,
-  },
-  {
-    slug: "oficina-do-ze",
-    name: "Oficina do Zé",
-    categoryName: "Automotivo",
-    city: "Porto Alegre, RS",
-    coverImageUrl: null,
-    averageRating: 4.6,
-    reviewCount: 87,
-    isOpenNow: true,
-  },
-  {
-    slug: "clinica-sorriso",
-    name: "Clínica Sorriso",
-    categoryName: "Saúde & Beleza",
-    city: "Canoas, RS",
-    coverImageUrl: null,
-    averageRating: 4.9,
-    reviewCount: 204,
-    isOpenNow: false,
-  },
-];
+export default async function HomePage() {
+  const featuredBusinesses = await getFeaturedBusinesses();
 
-export default function HomePage() {
   return (
     <main className="flex-1">
       <section className="bg-surface-lilac/60">
@@ -84,11 +55,17 @@ export default function HomePage() {
           subtitle="Negócios com plano Pro, prioridade máxima na busca"
           href="/buscar?ordenar=relevancia"
         />
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURED_BUSINESSES.map((business) => (
-            <BusinessCard key={business.slug} business={business} />
-          ))}
-        </div>
+        {featuredBusinesses.length === 0 ? (
+          <p className="py-8 text-center text-ink-muted">
+            Nenhuma empresa em destaque no momento.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredBusinesses.map((business) => (
+              <BusinessCard key={business.slug} business={business} />
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );
