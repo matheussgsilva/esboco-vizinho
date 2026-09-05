@@ -3,9 +3,10 @@ import { CadastroForm } from "./CadastroForm";
 export default async function CadastroPage({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; role?: string }>;
 }) {
-  const { callbackUrl } = await searchParams;
+  const { callbackUrl, role } = await searchParams;
+  const initialRole = role === "BUSINESS" ? "BUSINESS" : "USER";
 
   return (
     <main className="mx-auto flex max-w-sm flex-1 flex-col justify-center gap-6 px-4 py-24">
@@ -15,7 +16,7 @@ export default async function CadastroPage({
           Cadastre-se como consumidor ou anuncie seu negócio.
         </p>
       </div>
-      <CadastroForm callbackUrl={callbackUrl} />
+      <CadastroForm callbackUrl={callbackUrl} initialRole={initialRole} />
     </main>
   );
 }
