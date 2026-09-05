@@ -47,4 +47,16 @@ Instaladas via `npx skills add` conforme as instruções de setup do projeto —
 
 ## Estado atual
 
-Fase de bootstrap concluída: documentação, schema completo do Prisma, esqueleto do NextAuth (Credentials + Google, `proxy.ts` baseado em papel + guards nos layouts), esqueleto do Stripe (checkout, billing-portal, webhook com idempotência), design system (tokens do Tailwind, componentes de UI base), esqueleto de rotas com páginas placeholder, projeto Vercel criado e linkado, Prisma Postgres provisionado e migrado. Ainda não implementado (ver "Fora de escopo" no plano referenciado em `docs/README.md` e em cada `docs/arquitetura/*.md`): query real de busca/ranking, dashboards admin/empresa, fluxos de review/favorito, templates de email, rate limiting, upload de imagem.
+Fase de bootstrap concluída, e três features já implementadas com dados reais (cada uma numa branch `feature/*` mergeada em `main` via PR):
+
+- **Busca/ranking** (`docs/arquitetura/busca-e-ranking.md`): `src/lib/search.ts` com full-text search Postgres (coluna `tsvector` gerada + índice GIN, `websearch_to_tsquery`) e ranking ponderado por plano (`PRO > BASIC > gratuito`). Usado em `/`, `/buscar` e `/categorias/[slug]`.
+- **Autenticação real** (`/login`, `/cadastro`, `/recuperar-senha`, `/redefinir-senha`): Server Actions com `useActionState` + Zod, cadastro de consumidor ou dono de negócio (cria `Business` em `PENDING`), fluxo de reset de senha via `VerificationToken`, primeiro uso real do `src/lib/email.ts` (Resend + `EmailLog`).
+- **Dashboard admin** (`/admin/*`): moderação de empresas (transições de `Business.status` com `src/lib/business-status.ts` como fonte única de verdade, email `BUSINESS_APPROVED` só na primeira aprovação) e de avaliações (`Review.status`), listagens read-only de usuários e assinaturas, primeiro uso real do `AuditLog` via `src/lib/audit.ts`.
+
+Ainda não implementado (placeholders reais, prontos para receber conteúdo):
+- **Painel da empresa** (`/painel/*` — visão geral, perfil, produtos, horários, fotos, assinatura): rotas e guard de papel existem, conteúdo é só `PlaceholderPage`. `/painel/assinatura` já aponta que `/api/checkout` e `/api/billing-portal` estão prontos para uso.
+- **Reviews e favoritos**: nenhum código cria `Review` ou favorito ainda; `/admin/avaliacoes` e `/minha-conta/{favoritos,minhas-avaliacoes}` existem mas ficam vazios/placeholder até essa feature existir. Recalcular `Business.averageRating`/`reviewCount` também pertence a essa feature (decisão registrada no plano do dashboard admin).
+- Upload de imagem, rate limiting.
+- Promoção de papel de usuário (admin): deliberadamente fora de escopo do dashboard admin — ver `docs/seguranca.md`.
+
+Duas correções de produção já aplicadas após o primeiro deploy na Vercel (ver `docs/setup/prisma.md`): `postinstall: prisma generate` (client não vem commitado, `generated/` está no `.gitignore`) e `prisma.config.ts` usando `process.env.DATABASE_URL` com fallback em vez de `env()` (que lança erro se a variável não existir na fase de `npm install`, antes das env vars da Vercel estarem disponíveis).
