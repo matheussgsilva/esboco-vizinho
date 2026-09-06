@@ -47,7 +47,7 @@ Instaladas via `npx skills add` conforme as instruções de setup do projeto —
 
 ## Estado atual
 
-Fase de bootstrap concluída, e sete features já implementadas com dados reais (cada uma numa branch `feature/*` mergeada em `main` via PR):
+Fase de bootstrap concluída, e oito features já implementadas com dados reais (cada uma numa branch `feature/*` mergeada em `main` via PR):
 
 - **Busca/ranking** (`docs/arquitetura/busca-e-ranking.md`): `src/lib/search.ts` com full-text search Postgres (coluna `tsvector` gerada + índice GIN, `websearch_to_tsquery`) e ranking ponderado por plano (`PRO > BASIC > gratuito`). Usado em `/`, `/buscar` e `/categorias/[slug]`.
 - **Autenticação real** (`/login`, `/cadastro`, `/recuperar-senha`, `/redefinir-senha`): Server Actions com `useActionState` + Zod, cadastro de consumidor ou dono de negócio (cria `Business` em `PENDING`), fluxo de reset de senha via `VerificationToken`, primeiro uso real do `src/lib/email.ts` (Resend + `EmailLog`).
@@ -56,6 +56,7 @@ Fase de bootstrap concluída, e sete features já implementadas com dados reais 
 - **Perfil público da empresa** (`/empresas/[slug]`): página completa com horário de funcionamento (`BusinessHoursTable`), dados de contato/redes sociais e produtos.
 - **CTAs de cadastro na home**: chamadas para cadastro de consumidor e de dono de negócio na página inicial, com `/cadastro` aceitando o tipo de conta via parâmetro.
 - **Reviews e favoritos**: criação/edição (upsert)/exclusão de `Review` e toggle de `Favorite` a partir de `/empresas/[slug]` (`src/app/(public)/empresas/[slug]/actions.ts`), com `src/lib/reviews.ts#recalculateBusinessRating` recalculando `Business.averageRating`/`reviewCount` a partir dos reviews `PUBLISHED` — chamado tanto nessas actions quanto na moderação admin existente (`moderateReviewAction`, que antes não recalculava). Dono de negócio não pode avaliar a própria empresa. `/minha-conta`, `/minha-conta/favoritos` e `/minha-conta/minhas-avaliacoes` agora têm conteúdo real (a listagem de favoritos reaproveita `BusinessCard`).
+- **Redesign da home + chrome global**: `src/app/(public)/layout.tsx` adiciona `Header`/`Footer` (`src/components/layout/`) a todo o site público — antes não existia nenhum header/footer/nav, nem botão de logout em lugar nenhum do app. Header é ciente de sessão (`auth()`), com link para a área certa por role e ação de sign-out inline. Home reescrita com categorias vindas do banco (`prisma.category.findMany`, ícones via `lucide-react`/`src/lib/category-icons.ts`) e uma faixa de estatísticas reais (negócios/cidades/avaliações, via contagens Prisma) — cores/tipografia continuam as de `docs/design.md`, nenhum token novo.
 
 Ainda não implementado (placeholders reais, prontos para receber conteúdo):
 - **Fotos da empresa** (`/painel/fotos`): só `PlaceholderPage`; upload de logo/capa/galeria via URL assinada (abordagem documentada em `docs/seguranca.md`) ainda não existe.
