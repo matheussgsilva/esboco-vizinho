@@ -1,11 +1,15 @@
 import { cache } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isOpenNow } from "@/lib/search";
 import { StarRating } from "@/components/ui/StarRating";
 import { BusinessHoursTable } from "@/components/business/BusinessHoursTable";
+import { FavoriteButton } from "@/components/business/FavoriteButton";
+import { ReviewForm } from "@/components/business/ReviewForm";
 
 const getPublicBusinessBySlug = cache(async (slug: string) => {
   return prisma.business.findUnique({
@@ -57,6 +61,20 @@ export default async function EmpresaPage({ params }: PageProps) {
     notFound();
   }
 
+  const session = await auth();
+  const isOwner = session?.user.id === business.ownerId;
+
+  const [ownReview, favorite] = session?.user
+    ? await Promise.all([
+        prisma.review.findUnique({
+          where: { businessId_userId: { businessId: business.id, userId: session.user.id } },
+        }),
+        prisma.favorite.findUnique({
+          where: { userId_businessId: { userId: session.user.id, businessId: business.id } },
+        }),
+      ])
+    : [null, null];
+
   const location = [business.city, business.state].filter(Boolean).join(", ");
   const open = isOpenNow(business.hours);
 
@@ -107,6 +125,13 @@ export default async function EmpresaPage({ params }: PageProps) {
           >
             {open ? "Aberto" : "Fechado"}
           </span>
+          {session?.user && !isOwner && (
+            <FavoriteButton
+              businessId={business.id}
+              slug={business.slug}
+              initialIsFavorited={Boolean(favorite)}
+            />
+          )}
         </div>
 
         {business.description && <p className="text-sm text-ink">{business.description}</p>}
@@ -224,6 +249,19 @@ export default async function EmpresaPage({ params }: PageProps) {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-ink">Avaliações</h2>
+
+        {session?.user && !isOwner && (
+          <ReviewForm businessId={business.id} slug={business.slug} existingReview={ownReview} />
+        )}
+        {!session?.user && (
+          <p className="text-sm text-ink-muted">
+            <Link href="/login" className="text-brand-coral hover:text-brand-coral-dark hover:underline">
+              Faça login
+            </Link>{" "}
+            para avaliar esta empresa.
+          </p>
+        )}
+
         {business.reviews.length === 0 ? (
           <p className="text-sm text-ink-muted">Esta empresa ainda não recebeu avaliações.</p>
         ) : (
