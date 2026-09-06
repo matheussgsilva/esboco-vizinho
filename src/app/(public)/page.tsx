@@ -1,28 +1,42 @@
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 import { SearchBar } from "@/components/search/SearchBar";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { BusinessCard } from "@/components/business/BusinessCard";
 import { getFeaturedBusinesses } from "@/lib/search";
+import { getCategoryIcon } from "@/lib/category-icons";
 
 export const revalidate = 300;
 
-const CATEGORIES = [
-  { slug: "restaurantes", name: "Restaurantes" },
-  { slug: "saude-e-beleza", name: "Saúde & Beleza" },
-  { slug: "servicos-domesticos", name: "Serviços Domésticos" },
-  { slug: "educacao", name: "Educação" },
-  { slug: "pet-shops", name: "Pet Shops" },
-  { slug: "automotivo", name: "Automotivo" },
-];
+async function getHomeStats() {
+  const [businessCount, cities, reviewCount] = await Promise.all([
+    prisma.business.count({ where: { status: "APPROVED" } }),
+    prisma.business.groupBy({
+      by: ["city"],
+      where: { status: "APPROVED", city: { not: null } },
+    }),
+    prisma.review.count({ where: { status: "PUBLISHED" } }),
+  ]);
+
+  return {
+    businessCount,
+    cityCount: cities.length,
+    reviewCount,
+  };
+}
 
 export default async function HomePage() {
-  const featuredBusinesses = await getFeaturedBusinesses();
+  const [categories, featuredBusinesses, stats] = await Promise.all([
+    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    getFeaturedBusinesses(),
+    getHomeStats(),
+  ]);
 
   return (
     <main className="flex-1">
-      <section className="bg-surface-lilac/60">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 py-16 text-center">
-          <h1 className="text-3xl font-semibold text-ink sm:text-4xl">
+      <section className="bg-surface-blush">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 py-20 text-center">
+          <h1 className="text-4xl font-semibold text-ink sm:text-5xl">
             Encontre negócios locais de confiança
           </h1>
           <p className="max-w-xl text-ink-muted">
@@ -38,19 +52,40 @@ export default async function HomePage() {
       <section className="mx-auto max-w-5xl space-y-6 px-4 py-14">
         <SectionHeader title="O que você está procurando?" />
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          {CATEGORIES.map((category) => (
-            <a
-              key={category.slug}
-              href={`/categorias/${category.slug}`}
-              className="rounded-lg border border-border bg-surface p-4 text-center text-sm font-medium text-ink transition-colors hover:border-brand-coral hover:text-brand-coral"
-            >
-              {category.name}
-            </a>
-          ))}
+          {categories.map((category) => {
+            const Icon = getCategoryIcon(category.slug);
+            return (
+              <Link
+                key={category.slug}
+                href={`/categorias/${category.slug}`}
+                className="flex flex-col items-center gap-2 rounded-lg border border-border bg-surface p-4 text-center text-sm font-medium text-ink transition-colors hover:border-brand-coral hover:text-brand-coral"
+              >
+                <Icon className="h-6 w-6" strokeWidth={1.75} aria-hidden />
+                {category.name}
+              </Link>
+            );
+          })}
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl space-y-6 px-4 pb-16">
+      <section className="bg-brand-teal">
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 px-4 py-10 text-center text-white sm:grid-cols-3">
+          <div>
+            <p className="text-3xl font-semibold">{stats.businessCount}</p>
+            <p className="mt-1 text-sm text-white/70">Negócios cadastrados</p>
+          </div>
+          <div>
+            <p className="text-3xl font-semibold">{stats.cityCount}</p>
+            <p className="mt-1 text-sm text-white/70">Cidades atendidas</p>
+          </div>
+          <div>
+            <p className="text-3xl font-semibold">{stats.reviewCount}</p>
+            <p className="mt-1 text-sm text-white/70">Avaliações de clientes</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-5xl space-y-6 px-4 py-14">
         <SectionHeader
           title="Empresas em destaque"
           subtitle="Negócios com plano Pro, prioridade máxima na busca"
@@ -69,9 +104,9 @@ export default async function HomePage() {
         )}
       </section>
 
-      <section className="mx-auto max-w-5xl px-4 pb-16">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="flex flex-col items-start gap-3 rounded-lg border border-border bg-surface-lilac/60 p-6">
+      <section className="bg-surface-sand/30">
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 px-4 py-14 sm:grid-cols-2">
+          <div className="flex flex-col items-start gap-3 rounded-lg border-l-4 border-brand-coral bg-surface p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-ink">Sou consumidor</h3>
             <p className="text-sm text-ink-muted">
               Crie sua conta grátis para favoritar negócios e deixar avaliações.
@@ -83,7 +118,7 @@ export default async function HomePage() {
               Criar conta
             </Link>
           </div>
-          <div className="flex flex-col items-start gap-3 rounded-lg border border-border bg-surface-blush/40 p-6">
+          <div className="flex flex-col items-start gap-3 rounded-lg border-l-4 border-brand-teal bg-surface p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-ink">Tenho um negócio</h3>
             <p className="text-sm text-ink-muted">
               Anuncie sua empresa gratuitamente e apareça para clientes perto de você.
