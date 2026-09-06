@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
+import { recalculateBusinessRating } from "@/lib/reviews";
 import { reviewModerationSchema } from "@/lib/validations/admin";
 
 export interface ReviewModerationState {
@@ -43,9 +44,12 @@ export async function moderateReviewAction(
 
   const nextStatus = NEXT_STATUS[intent];
 
-  await prisma.review.update({
-    where: { id },
-    data: { status: nextStatus },
+  await prisma.$transaction(async (tx) => {
+    await tx.review.update({
+      where: { id },
+      data: { status: nextStatus },
+    });
+    await recalculateBusinessRating(tx, review.businessId);
   });
 
   await logAudit({

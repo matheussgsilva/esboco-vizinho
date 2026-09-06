@@ -47,16 +47,20 @@ Instaladas via `npx skills add` conforme as instruções de setup do projeto —
 
 ## Estado atual
 
-Fase de bootstrap concluída, e três features já implementadas com dados reais (cada uma numa branch `feature/*` mergeada em `main` via PR):
+Fase de bootstrap concluída, e sete features já implementadas com dados reais (cada uma numa branch `feature/*` mergeada em `main` via PR):
 
 - **Busca/ranking** (`docs/arquitetura/busca-e-ranking.md`): `src/lib/search.ts` com full-text search Postgres (coluna `tsvector` gerada + índice GIN, `websearch_to_tsquery`) e ranking ponderado por plano (`PRO > BASIC > gratuito`). Usado em `/`, `/buscar` e `/categorias/[slug]`.
 - **Autenticação real** (`/login`, `/cadastro`, `/recuperar-senha`, `/redefinir-senha`): Server Actions com `useActionState` + Zod, cadastro de consumidor ou dono de negócio (cria `Business` em `PENDING`), fluxo de reset de senha via `VerificationToken`, primeiro uso real do `src/lib/email.ts` (Resend + `EmailLog`).
 - **Dashboard admin** (`/admin/*`): moderação de empresas (transições de `Business.status` com `src/lib/business-status.ts` como fonte única de verdade, email `BUSINESS_APPROVED` só na primeira aprovação) e de avaliações (`Review.status`), listagens read-only de usuários e assinaturas, primeiro uso real do `AuditLog` via `src/lib/audit.ts`.
+- **Painel da empresa** (`/painel/*`): visão geral, perfil (`BusinessProfileForm` + `SocialLinksManager`), horários (`BusinessHoursForm`), produtos/serviços (CRUD via `ProductForm`/`ProductRow`), assinatura (planos, Stripe Checkout/Billing Portal via `SubscriptionActions`) e avaliações recebidas (leitura) — todos com Server Actions e dados reais via Prisma. `PainelNav` dá a navegação do painel. `PlaceholderPage` só aparece no caso de borda "conta sem negócio vinculado".
+- **Perfil público da empresa** (`/empresas/[slug]`): página completa com horário de funcionamento (`BusinessHoursTable`), dados de contato/redes sociais e produtos.
+- **CTAs de cadastro na home**: chamadas para cadastro de consumidor e de dono de negócio na página inicial, com `/cadastro` aceitando o tipo de conta via parâmetro.
+- **Reviews e favoritos**: criação/edição (upsert)/exclusão de `Review` e toggle de `Favorite` a partir de `/empresas/[slug]` (`src/app/(public)/empresas/[slug]/actions.ts`), com `src/lib/reviews.ts#recalculateBusinessRating` recalculando `Business.averageRating`/`reviewCount` a partir dos reviews `PUBLISHED` — chamado tanto nessas actions quanto na moderação admin existente (`moderateReviewAction`, que antes não recalculava). Dono de negócio não pode avaliar a própria empresa. `/minha-conta`, `/minha-conta/favoritos` e `/minha-conta/minhas-avaliacoes` agora têm conteúdo real (a listagem de favoritos reaproveita `BusinessCard`).
 
 Ainda não implementado (placeholders reais, prontos para receber conteúdo):
-- **Painel da empresa** (`/painel/*` — visão geral, perfil, produtos, horários, fotos, assinatura): rotas e guard de papel existem, conteúdo é só `PlaceholderPage`. `/painel/assinatura` já aponta que `/api/checkout` e `/api/billing-portal` estão prontos para uso.
-- **Reviews e favoritos**: nenhum código cria `Review` ou favorito ainda; `/admin/avaliacoes` e `/minha-conta/{favoritos,minhas-avaliacoes}` existem mas ficam vazios/placeholder até essa feature existir. Recalcular `Business.averageRating`/`reviewCount` também pertence a essa feature (decisão registrada no plano do dashboard admin).
-- Upload de imagem, rate limiting.
+- **Fotos da empresa** (`/painel/fotos`): só `PlaceholderPage`; upload de logo/capa/galeria via URL assinada (abordagem documentada em `docs/seguranca.md`) ainda não existe.
+- **Email de nova review**: `docs/arquitetura/emails.md` documenta um email ao dono da empresa quando recebe uma review nova, mas o template e o envio ainda não foram implementados (decisão deliberada ao implementar reviews/favoritos, para manter o escopo focado em CRUD + recálculo de rating).
+- Rate limiting: nenhuma implementação ainda.
 - Promoção de papel de usuário (admin): deliberadamente fora de escopo do dashboard admin — ver `docs/seguranca.md`.
 
 Duas correções de produção já aplicadas após o primeiro deploy na Vercel (ver `docs/setup/prisma.md`): `postinstall: prisma generate` (client não vem commitado, `generated/` está no `.gitignore`) e `prisma.config.ts` usando `process.env.DATABASE_URL` com fallback em vez de `env()` (que lança erro se a variável não existir na fase de `npm install`, antes das env vars da Vercel estarem disponíveis).
