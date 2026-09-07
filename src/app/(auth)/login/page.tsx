@@ -1,3 +1,4 @@
+import { AuthShell } from "@/components/auth/AuthShell";
 import { LoginForm } from "./LoginForm";
 
 export default async function LoginPage({
@@ -8,19 +9,20 @@ export default async function LoginPage({
   const { callbackUrl, reset } = await searchParams;
 
   return (
-    <main className="mx-auto flex max-w-sm flex-1 flex-col justify-center gap-6 px-4 py-24">
-      <div>
-        <h1 className="text-2xl font-semibold text-ink">Entrar</h1>
-        <p className="mt-1 text-sm text-ink-muted">
-          Acesse sua conta para gerenciar seu negócio ou suas avaliações.
-        </p>
+    <AuthShell
+      title="Entrar"
+      description="Acesse sua conta para gerenciar seu negócio ou suas avaliações."
+      panelHeading="Bem-vindo de volta"
+      panelSubtext="Continue de onde parou: gerencie seu negócio ou suas avaliações."
+    >
+      <div className="space-y-6">
+        {reset === "sucesso" && (
+          <p className="rounded-md bg-success/10 px-4 py-2.5 text-sm text-success">
+            Senha redefinida com sucesso. Faça login com sua nova senha.
+          </p>
+        )}
+        <LoginForm callbackUrl={callbackUrl} />
       </div>
-      {reset === "sucesso" && (
-        <p className="rounded-md bg-success/10 px-4 py-2.5 text-sm text-success">
-          Senha redefinida com sucesso. Faça login com sua nova senha.
-        </p>
-      )}
-      <LoginForm callbackUrl={callbackUrl} />
-    </main>
+    </AuthShell>
   );
 }
