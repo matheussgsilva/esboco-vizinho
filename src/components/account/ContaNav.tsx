@@ -2,16 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ADMIN_NAV_ITEMS } from "./nav-items";
 
-export function AdminNav() {
+const TABS = [
+  { href: "/minha-conta", label: "Visão geral" },
+  { href: "/minha-conta/favoritos", label: "Favoritos" },
+  { href: "/minha-conta/minhas-avaliacoes", label: "Minhas avaliações" },
+];
+
+export function ContaNav() {
   const pathname = usePathname();
 
   return (
     <nav className="border-b border-border bg-surface">
       <div className="mx-auto flex max-w-5xl gap-4 overflow-x-auto px-4 text-sm">
-        {ADMIN_NAV_ITEMS.map((tab) => {
-          const active = tab.href === "/admin" ? pathname === tab.href : pathname?.startsWith(tab.href);
+        {TABS.map((tab) => {
+          const active =
+            tab.href === "/minha-conta" ? pathname === tab.href : pathname?.startsWith(tab.href);
           return (
             <Link
               key={tab.href}
