@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import type { Session } from "next-auth";
-import { signOut } from "@/auth";
+import { signOutAction } from "@/lib/auth-actions";
 import type { Role } from "../../../generated/enums";
 
 const ACCOUNT_HREF: Record<Role, string> = {
@@ -15,11 +15,6 @@ const ACCOUNT_LABEL: Record<Role, string> = {
   BUSINESS: "Meu painel",
   USER: "Minha conta",
 };
-
-async function signOutAction() {
-  "use server";
-  await signOut({ redirectTo: "/" });
-}
 
 export function Header({ session }: { session: Session | null }) {
   const user = session?.user;
