@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MapPin } from "lucide-react";
 import type { Session } from "next-auth";
 import { signOut } from "@/auth";
 import type { Role } from "../../../generated/enums";
@@ -24,9 +25,10 @@ export function Header({ session }: { session: Session | null }) {
   const user = session?.user;
 
   return (
-    <header className="border-b border-border bg-surface">
+    <header className="sticky top-0 z-10 border-b border-border bg-surface">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
-        <Link href="/" className="text-lg font-bold text-ink">
+        <Link href="/" className="flex items-center gap-1.5 text-lg font-bold text-ink">
+          <MapPin className="h-5 w-5 text-brand-coral" strokeWidth={2} aria-hidden />
           Esboço
         </Link>
 

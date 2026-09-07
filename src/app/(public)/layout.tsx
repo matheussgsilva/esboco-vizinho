@@ -13,7 +13,7 @@ export default async function PublicLayout({
     <div className="flex min-h-screen flex-col">
       <Header session={session} />
       {children}
-      <Footer />
+      <Footer session={session} />
     </div>
   );
 }
