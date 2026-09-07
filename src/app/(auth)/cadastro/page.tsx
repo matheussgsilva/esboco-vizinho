@@ -1,3 +1,4 @@
+import { AuthShell } from "@/components/auth/AuthShell";
 import { CadastroForm } from "./CadastroForm";
 
 export default async function CadastroPage({
@@ -9,14 +10,13 @@ export default async function CadastroPage({
   const initialRole = role === "BUSINESS" ? "BUSINESS" : "USER";
 
   return (
-    <main className="mx-auto flex max-w-sm flex-1 flex-col justify-center gap-6 px-4 py-24">
-      <div>
-        <h1 className="text-2xl font-semibold text-ink">Criar conta</h1>
-        <p className="mt-1 text-sm text-ink-muted">
-          Cadastre-se como consumidor ou anuncie seu negócio.
-        </p>
-      </div>
+    <AuthShell
+      title="Criar conta"
+      description="Cadastre-se como consumidor ou anuncie seu negócio."
+      panelHeading="Para quem busca e para quem oferece"
+      panelSubtext="Consumidores encontram negócios de confiança. Donos de negócio ganham visibilidade local."
+    >
       <CadastroForm callbackUrl={callbackUrl} initialRole={initialRole} />
-    </main>
+    </AuthShell>
   );
 }

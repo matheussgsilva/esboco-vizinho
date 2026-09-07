@@ -5,31 +5,15 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { BusinessCard } from "@/components/business/BusinessCard";
 import { getFeaturedBusinesses } from "@/lib/search";
 import { getCategoryIcon } from "@/lib/category-icons";
+import { getPlatformStats } from "@/lib/stats";
 
 export const revalidate = 300;
-
-async function getHomeStats() {
-  const [businessCount, cities, reviewCount] = await Promise.all([
-    prisma.business.count({ where: { status: "APPROVED" } }),
-    prisma.business.groupBy({
-      by: ["city"],
-      where: { status: "APPROVED", city: { not: null } },
-    }),
-    prisma.review.count({ where: { status: "PUBLISHED" } }),
-  ]);
-
-  return {
-    businessCount,
-    cityCount: cities.length,
-    reviewCount,
-  };
-}
 
 export default async function HomePage() {
   const [categories, featuredBusinesses, stats] = await Promise.all([
     prisma.category.findMany({ orderBy: { name: "asc" } }),
     getFeaturedBusinesses(),
-    getHomeStats(),
+    getPlatformStats(),
   ]);
 
   return (
