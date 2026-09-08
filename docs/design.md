@@ -67,6 +67,15 @@ Implementados em `src/components/ui/` e `src/components/business/` `src/componen
 - **StarRating** (`ui/StarRating.tsx`) — estrelas + nota numérica + contagem de reviews entre parênteses.
 - **SectionHeader** (`ui/SectionHeader.tsx`) — título + subtítulo opcional + link "Ver mais" à direita (sem eyebrow ALL-CAPS decorativo acima do título).
 
+## Padrão de home (inspirado no booking.com)
+
+A home (`src/app/(public)/page.tsx`) usa um layout inspirado na estrutura do booking.com — sem tomar emprestado a paleta deles, só a composição:
+
+- **Hero escuro + busca flutuante**: o hero usa `bg-brand-teal` (em vez do `surface-blush` das demais seções claras) e o `SearchBar` fica num wrapper com margem negativa (`-mt-10`) logo abaixo, criando a sobreposição clássica do Booking — metade do card de busca "dentro" do hero escuro, metade já na seção branca seguinte.
+- **Faixa de confiança**: os números de `getPlatformStats()` (negócios/cidades/avaliações) aparecem como uma linha compacta de ícone + valor + label logo abaixo da busca, em vez de um bloco de fundo colorido próprio — evita repetir o mesmo `bg-brand-teal` do hero duas vezes na página.
+- **Cards de categoria**: tiles com ícone dentro de um badge circular (alternando `surface-blush`/`surface-sand`/`surface-lilac`), elevação (`shadow-sm` → `shadow-md` + leve `-translate-y-0.5`) no hover em vez de só trocar a cor da borda.
+- **CTA duplo**: os cards de "sou consumidor" / "tenho um negócio" usam fundo tintado sólido (`bg-brand-coral/10`, `bg-brand-teal/10`) com ícone em badge, em vez de card branco com borda lateral.
+
 ## Performance / carregamento rápido
 
 - Fonte única, variável, self-hosted via `next/font` — sem requisição externa, sem FOUC.
