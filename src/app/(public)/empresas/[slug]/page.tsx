@@ -255,7 +255,10 @@ export default async function EmpresaPage({ params }: PageProps) {
         )}
         {!session?.user && (
           <p className="text-sm text-ink-muted">
-            <Link href="/login" className="text-brand-coral hover:text-brand-coral-dark hover:underline">
+            <Link
+              href={`/login?callbackUrl=${encodeURIComponent(`/empresas/${business.slug}`)}`}
+              className="text-brand-coral hover:text-brand-coral-dark hover:underline"
+            >
               Faça login
             </Link>{" "}
             para avaliar esta empresa.
