@@ -7,7 +7,7 @@ import { PrismaClient } from "../generated/client";
 import type { DayOfWeek } from "../generated/enums";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg({ connectionString: process.env.DIRECT_URL });
 const prisma = new PrismaClient({ adapter });
 
 const CATEGORIES = [
