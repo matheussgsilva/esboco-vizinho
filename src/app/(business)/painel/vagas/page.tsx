@@ -3,8 +3,7 @@ import { getOwnedBusiness } from "@/lib/business";
 import { prisma } from "@/lib/prisma";
 import { PlaceholderPage } from "@/components/ui/PlaceholderPage";
 import { Pagination } from "@/components/ui/Pagination";
-import { JobForm } from "@/components/business/JobForm";
-import { JobRow } from "@/components/business/JobRow";
+import { JobsTable } from "@/components/business/JobsTable";
 
 const PAGE_SIZE = 20;
 
@@ -50,44 +49,33 @@ export default async function PainelVagasPage({
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <main className="mx-auto max-w-3xl flex-1 space-y-6 px-4 py-10">
+    <main className="mx-auto max-w-5xl flex-1 space-y-6 px-4 py-10">
       <div>
         <h1 className="text-2xl font-semibold text-ink">Vagas</h1>
         <p className="mt-1 text-sm text-ink-muted">{total} cadastradas no histórico.</p>
       </div>
 
-      <JobForm defaultCity={business.city} defaultState={business.state} />
-
-      {jobs.length === 0 ? (
-        <p className="rounded-lg border border-border bg-surface px-4 py-8 text-center text-sm text-ink-muted">
-          Nenhuma vaga cadastrada ainda.
-        </p>
-      ) : (
-        <div className="space-y-3">
-          {jobs.map((job) => (
-            <JobRow
-              key={job.id}
-              job={{
-                id: job.id,
-                title: job.title,
-                description: job.description,
-                type: job.type,
-                workMode: job.workMode,
-                city: job.city,
-                state: job.state,
-                salaryMin: job.salaryMin !== null ? Number(job.salaryMin) : null,
-                salaryMax: job.salaryMax !== null ? Number(job.salaryMax) : null,
-                showSalary: job.showSalary,
-                contactEmail: job.contactEmail,
-                applicationUrl: job.applicationUrl,
-                status: job.status,
-                closesAt: job.closesAt,
-                expired: isJobExpired(job),
-              }}
-            />
-          ))}
-        </div>
-      )}
+      <JobsTable
+        jobs={jobs.map((job) => ({
+          id: job.id,
+          title: job.title,
+          description: job.description,
+          type: job.type,
+          workMode: job.workMode,
+          city: job.city,
+          state: job.state,
+          salaryMin: job.salaryMin !== null ? Number(job.salaryMin) : null,
+          salaryMax: job.salaryMax !== null ? Number(job.salaryMax) : null,
+          showSalary: job.showSalary,
+          contactEmail: job.contactEmail,
+          applicationUrl: job.applicationUrl,
+          status: job.status,
+          closesAt: job.closesAt,
+          expired: isJobExpired(job),
+        }))}
+        defaultCity={business.city}
+        defaultState={business.state}
+      />
 
       <Pagination basePath="/painel/vagas" searchParams={{}} page={page} totalPages={totalPages} />
     </main>
