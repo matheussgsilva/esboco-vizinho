@@ -34,6 +34,12 @@ export function Header({ session }: { session: Session | null }) {
           >
             Buscar
           </Link>
+          <Link
+            href="/vagas"
+            className="text-sm font-medium text-ink-muted transition-colors hover:text-ink"
+          >
+            Vagas
+          </Link>
 
           {user ? (
             <div className="flex items-center gap-4">

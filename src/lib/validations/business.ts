@@ -1,17 +1,17 @@
 import { z } from "zod";
 
-const optionalTrimmed = (max: number) =>
+export const optionalTrimmed = (max: number) =>
   z.preprocess(
     (v) => (v === "" || v == null ? undefined : v),
     z.string().trim().max(max).optional()
   );
 
-const optionalUrl = z.preprocess(
+export const optionalUrl = z.preprocess(
   (v) => (v === "" || v == null ? undefined : v),
   z.string().trim().url("URL inválida").optional()
 );
 
-const optionalEmail = z.preprocess(
+export const optionalEmail = z.preprocess(
   (v) => (v === "" || v == null ? undefined : v),
   z.string().trim().email("Email inválido").optional()
 );
@@ -78,7 +78,7 @@ export const businessHoursRowSchema = z
 
 export type BusinessHoursRowInput = z.infer<typeof businessHoursRowSchema>;
 
-const priceField = z.preprocess(
+export const priceField = z.preprocess(
   (v) => (v === "" || v == null ? undefined : v),
   z.coerce.number().nonnegative("Preço não pode ser negativo").optional()
 );
