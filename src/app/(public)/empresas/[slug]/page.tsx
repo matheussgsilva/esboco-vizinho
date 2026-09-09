@@ -7,6 +7,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { isOpenNow } from "@/lib/search";
 import { StarRating } from "@/components/ui/StarRating";
+import { JOB_TYPE_LABELS, WORK_MODE_LABELS } from "@/lib/validations/job";
 import { BusinessHoursTable } from "@/components/business/BusinessHoursTable";
 import { FavoriteButton } from "@/components/business/FavoriteButton";
 import { ReviewForm } from "@/components/business/ReviewForm";
@@ -18,6 +19,10 @@ const getPublicBusinessBySlug = cache(async (slug: string) => {
       categories: { include: { category: { select: { name: true, slug: true } } } },
       hours: true,
       products: { where: { isActive: true }, orderBy: { createdAt: "asc" } },
+      jobs: {
+        where: { status: "OPEN", closesAt: { gt: new Date() } },
+        orderBy: { createdAt: "desc" },
+      },
       photos: { orderBy: { order: "asc" } },
       socialLinks: true,
       reviews: {
@@ -224,6 +229,27 @@ export default async function EmpresaPage({ params }: PageProps) {
           </div>
         )}
       </section>
+
+      {business.jobs.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-ink">Vagas abertas</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {business.jobs.map((job) => (
+              <Link
+                key={job.id}
+                href={`/vagas/${job.id}`}
+                className="block rounded-lg border border-border bg-surface p-4 transition-shadow hover:shadow-md"
+              >
+                <h3 className="font-medium text-ink">{job.title}</h3>
+                <p className="mt-1 text-sm text-ink-muted">
+                  {JOB_TYPE_LABELS[job.type]} · {WORK_MODE_LABELS[job.workMode]}
+                  {job.city ? ` · ${job.city}` : ""}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {business.photos.length > 0 && (
         <section className="space-y-3">
