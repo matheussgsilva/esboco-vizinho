@@ -38,3 +38,30 @@ export function monthlyBuckets(dates: Date[], months = 12) {
 
   return buckets;
 }
+
+export type MonthDelta = { percent: number; direction: "up" | "down" | "flat" | "new" };
+
+export function monthOverMonthDelta(buckets: { value: number }[]): MonthDelta {
+  const current = buckets[buckets.length - 1]?.value ?? 0;
+  const previous = buckets[buckets.length - 2]?.value ?? 0;
+
+  if (previous === 0) {
+    return current > 0 ? { percent: 100, direction: "new" } : { percent: 0, direction: "flat" };
+  }
+
+  const percent = Math.round(((current - previous) / previous) * 100);
+  if (percent === 0) return { percent: 0, direction: "flat" };
+  return { percent: Math.abs(percent), direction: percent > 0 ? "up" : "down" };
+}
+
+const WEEKDAY_LABELS_PT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+export function weekdayBuckets(...dateLists: Date[][]) {
+  const buckets = WEEKDAY_LABELS_PT.map((label) => ({ label, value: 0 }));
+  for (const dates of dateLists) {
+    for (const date of dates) {
+      buckets[date.getDay()].value += 1;
+    }
+  }
+  return buckets;
+}

@@ -30,11 +30,19 @@ function TrendTooltip({
   );
 }
 
-export function TrendAreaChart({ data, color }: { data: TrendPoint[]; color: string }) {
+export function TrendAreaChart({
+  data,
+  color,
+  height = 140,
+}: {
+  data: TrendPoint[];
+  color: string;
+  height?: number;
+}) {
   const gradientId = useId();
 
   return (
-    <ResponsiveContainer width="100%" height={140}>
+    <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
