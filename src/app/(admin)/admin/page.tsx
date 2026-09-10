@@ -12,6 +12,9 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminStatCard, ADMIN_STAT_TONES, type AdminStatTone } from "@/components/admin/AdminStatCard";
+import { TrendAreaChart } from "@/components/admin/charts/TrendAreaChart";
+import { PlanBarChart } from "@/components/admin/charts/PlanBarChart";
+import { monthlyBuckets, monthsAgo } from "@/lib/growth-stats";
 
 function DistributionBar({ segments }: { segments: { value: number; className: string }[] }) {
   const total = segments.reduce((sum, segment) => sum + segment.value, 0);
@@ -37,13 +40,41 @@ function percentOf(value: number, total: number) {
   return Math.round((value / total) * 100);
 }
 
+const GROWTH_MONTHS = 12;
+
 export default async function AdminPage() {
-  const [businessByStatus, userByRole, flaggedReviews, activeSubscriptions] = await Promise.all([
+  const growthStart = monthsAgo(GROWTH_MONTHS);
+
+  const [
+    businessByStatus,
+    businessByPlan,
+    userByRole,
+    flaggedReviews,
+    activeSubscriptions,
+    newBusinesses,
+    newUsers,
+    newReviews,
+  ] = await Promise.all([
     prisma.business.groupBy({ by: ["status"], _count: true }),
+    prisma.business.groupBy({ by: ["planType"], _count: true }),
     prisma.user.groupBy({ by: ["role"], _count: true }),
     prisma.review.count({ where: { status: "FLAGGED" } }),
     prisma.subscription.count({ where: { status: "ACTIVE" } }),
+    prisma.business.findMany({ where: { createdAt: { gte: growthStart } }, select: { createdAt: true } }),
+    prisma.user.findMany({ where: { createdAt: { gte: growthStart } }, select: { createdAt: true } }),
+    prisma.review.findMany({ where: { createdAt: { gte: growthStart } }, select: { createdAt: true } }),
   ]);
+
+  const businessGrowth = monthlyBuckets(newBusinesses.map((b) => b.createdAt), GROWTH_MONTHS);
+  const userGrowth = monthlyBuckets(newUsers.map((u) => u.createdAt), GROWTH_MONTHS);
+  const reviewGrowth = monthlyBuckets(newReviews.map((r) => r.createdAt), GROWTH_MONTHS);
+
+  const planCount = (plan: string) => businessByPlan.find((row) => row.planType === plan)?._count ?? 0;
+  const planStats = [
+    { label: "Gratuito", value: planCount("FREE"), color: "#FAD4D5" },
+    { label: "Básico", value: planCount("BASIC"), color: "#F29899" },
+    { label: "Pro", value: planCount("PRO"), color: "#EA5455" },
+  ];
 
   const businessCount = (status: string) =>
     businessByStatus.find((row) => row.status === status)?._count ?? 0;
@@ -148,6 +179,24 @@ export default async function AdminPage() {
       </div>
 
       <section className="space-y-3">
+        <h2 className="text-lg font-semibold text-ink">Crescimento (últimos 12 meses)</h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="rounded-lg border border-border bg-surface p-4">
+            <p className="text-sm font-medium text-ink">Negócios cadastrados</p>
+            <TrendAreaChart data={businessGrowth} color="#EA5455" />
+          </div>
+          <div className="rounded-lg border border-border bg-surface p-4">
+            <p className="text-sm font-medium text-ink">Usuários cadastrados</p>
+            <TrendAreaChart data={userGrowth} color="#1B4D4D" />
+          </div>
+          <div className="rounded-lg border border-border bg-surface p-4">
+            <p className="text-sm font-medium text-ink">Avaliações recebidas</p>
+            <TrendAreaChart data={reviewGrowth} color="#FFC107" />
+          </div>
+        </div>
+      </section>
+
+      <section className="space-y-3">
         <h2 className="text-lg font-semibold text-ink">Empresas</h2>
         <DistributionBar
           segments={businessStats.map((stat) => ({ value: stat.value, className: stat.barClassName }))}
@@ -164,6 +213,10 @@ export default async function AdminPage() {
               share={percentOf(stat.value, businessTotal)}
             />
           ))}
+        </div>
+        <div className="rounded-lg border border-border bg-surface p-4">
+          <p className="text-sm font-medium text-ink">Empresas por plano</p>
+          <PlanBarChart data={planStats} />
         </div>
       </section>
 
