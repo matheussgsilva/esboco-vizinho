@@ -17,17 +17,17 @@ export function PainelSidebar({ business }: { business: PainelSidebarBusiness | 
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col gap-4 border-r border-border bg-surface px-4 py-6 lg:flex">
+    <aside className="hidden w-64 shrink-0 flex-col gap-4 bg-ink px-4 py-6 text-white/80 lg:flex">
       {business ? (
-        <div className="space-y-2 border-b border-border px-1 pb-4">
-          <p className="truncate text-sm font-semibold text-ink">{business.name}</p>
+        <div className="space-y-2 border-b border-white/10 px-1 pb-4">
+          <p className="truncate text-sm font-semibold text-white">{business.name}</p>
           <div className="flex flex-wrap items-center gap-1.5">
             <BusinessStatusBadge status={business.status} />
             <PlanBadge plan={business.planType} />
           </div>
         </div>
       ) : (
-        <p className="border-b border-border px-1 pb-4 text-sm font-medium text-ink">
+        <p className="border-b border-white/10 px-1 pb-4 text-sm font-medium text-white/60">
           Painel da empresa
         </p>
       )}
@@ -43,11 +43,11 @@ export function PainelSidebar({ business }: { business: PainelSidebarBusiness | 
               href={item.href}
               className={`flex items-center gap-3 rounded-md border-l-2 px-3 py-2 text-sm font-medium transition-colors ${
                 active
-                  ? "border-brand-coral bg-surface-blush/40 text-brand-coral"
-                  : "border-transparent text-ink-muted hover:bg-surface-blush/20 hover:text-ink"
+                  ? "border-brand-coral bg-white/10 text-white"
+                  : "border-transparent text-white/70 hover:bg-white/5 hover:text-white"
               }`}
             >
-              <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+              <Icon className={`h-4 w-4 ${active ? "text-brand-coral" : ""}`} strokeWidth={1.75} aria-hidden />
               {item.label}
             </Link>
           );
