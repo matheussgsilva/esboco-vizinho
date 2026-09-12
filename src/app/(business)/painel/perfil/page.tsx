@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { PlaceholderPage } from "@/components/ui/PlaceholderPage";
 import { BusinessProfileForm } from "@/components/business/BusinessProfileForm";
 import { SocialLinksManager } from "@/components/business/SocialLinksManager";
+import { BusinessCategoriesForm } from "@/components/business/BusinessCategoriesForm";
 
 export default async function PainelPerfilPage() {
   const session = await requireSession();
@@ -18,10 +19,17 @@ export default async function PainelPerfilPage() {
     );
   }
 
-  const socialLinks = await prisma.socialLink.findMany({
-    where: { businessId: business.id },
-    orderBy: { id: "asc" },
-  });
+  const [socialLinks, categories, businessCategories] = await Promise.all([
+    prisma.socialLink.findMany({
+      where: { businessId: business.id },
+      orderBy: { id: "asc" },
+    }),
+    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.businessCategory.findMany({
+      where: { businessId: business.id },
+      select: { categoryId: true },
+    }),
+  ]);
 
   return (
     <main className="mx-auto max-w-3xl flex-1 space-y-8 px-4 py-10">
@@ -46,6 +54,14 @@ export default async function PainelPerfilPage() {
             state: business.state,
             zipCode: business.zipCode,
           }}
+        />
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold text-ink">Categorias</h2>
+        <BusinessCategoriesForm
+          categories={categories}
+          selectedIds={businessCategories.map((bc) => bc.categoryId)}
         />
       </section>
 

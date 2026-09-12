@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/prisma";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { CadastroForm } from "./CadastroForm";
 
@@ -9,6 +10,11 @@ export default async function CadastroPage({
   const { callbackUrl, role } = await searchParams;
   const initialRole = role === "BUSINESS" ? "BUSINESS" : "USER";
 
+  const categories = await prisma.category.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  });
+
   return (
     <AuthShell
       title="Criar conta"
@@ -16,7 +22,7 @@ export default async function CadastroPage({
       panelHeading="Para quem busca e para quem oferece"
       panelSubtext="Consumidores encontram negócios de confiança. Donos de negócio ganham visibilidade local."
     >
-      <CadastroForm callbackUrl={callbackUrl} initialRole={initialRole} />
+      <CadastroForm callbackUrl={callbackUrl} initialRole={initialRole} categories={categories} />
     </AuthShell>
   );
 }

@@ -22,6 +22,8 @@ export async function registerAction(
   _prevState: RegisterState,
   formData: FormData
 ): Promise<RegisterState> {
+  const categoryIds = formData.getAll("categoryIds").filter((v): v is string => typeof v === "string");
+
   const parsed = registerSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -29,6 +31,7 @@ export async function registerAction(
     confirmPassword: formData.get("confirmPassword"),
     role: formData.get("role"),
     businessName: formData.get("businessName") || undefined,
+    categoryIds,
   });
 
   if (!parsed.success) {
@@ -42,7 +45,7 @@ export async function registerAction(
     return { fieldErrors };
   }
 
-  const { name, email, password, role, businessName } = parsed.data;
+  const { name, email, password, role, businessName, categoryIds: selectedCategoryIds } = parsed.data;
   const callbackUrl = formData.get("callbackUrl");
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -59,9 +62,18 @@ export async function registerAction(
 
     if (role === "BUSINESS" && businessName) {
       const slug = await generateUniqueBusinessSlug(businessName);
-      await tx.business.create({
+      const business = await tx.business.create({
         data: { ownerId: user.id, name: businessName, slug },
       });
+
+      if (selectedCategoryIds?.length) {
+        await tx.businessCategory.createMany({
+          data: selectedCategoryIds.map((categoryId) => ({
+            businessId: business.id,
+            categoryId,
+          })),
+        });
+      }
     }
   });
 
