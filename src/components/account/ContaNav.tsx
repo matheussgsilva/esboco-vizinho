@@ -2,12 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const TABS = [
-  { href: "/minha-conta", label: "Visão geral" },
-  { href: "/minha-conta/favoritos", label: "Favoritos" },
-  { href: "/minha-conta/minhas-avaliacoes", label: "Minhas avaliações" },
-];
+import { CONTA_NAV_ITEMS } from "./nav-items";
 
 export function ContaNav() {
   const pathname = usePathname();
@@ -15,7 +10,7 @@ export function ContaNav() {
   return (
     <nav className="border-b border-border bg-surface">
       <div className="mx-auto flex max-w-5xl gap-4 overflow-x-auto px-4 text-sm">
-        {TABS.map((tab) => {
+        {CONTA_NAV_ITEMS.map((tab) => {
           const active =
             tab.href === "/minha-conta" ? pathname === tab.href : pathname?.startsWith(tab.href);
           return (
