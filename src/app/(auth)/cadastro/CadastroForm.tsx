@@ -11,9 +11,11 @@ const INITIAL_STATE: RegisterState = {};
 export function CadastroForm({
   callbackUrl,
   initialRole = "USER",
+  categories,
 }: {
   callbackUrl?: string;
   initialRole?: "USER" | "BUSINESS";
+  categories: { id: string; name: string }[];
 }) {
   const [state, formAction, isPending] = useActionState(registerAction, INITIAL_STATE);
   const [role, setRole] = useState<"USER" | "BUSINESS">(initialRole);
@@ -56,12 +58,31 @@ export function CadastroForm({
       />
 
       {role === "BUSINESS" && (
-        <FormField
-          label="Nome do negócio"
-          name="businessName"
-          required
-          error={errors.businessName}
-        />
+        <>
+          <FormField
+            label="Nome do negócio"
+            name="businessName"
+            required
+            error={errors.businessName}
+          />
+          <div className="space-y-1.5">
+            <span className="text-sm font-medium text-ink">Categorias do negócio</span>
+            <div className="grid grid-cols-2 gap-2 rounded-md border border-border bg-surface p-3 sm:grid-cols-3">
+              {categories.map((category) => (
+                <label key={category.id} className="flex items-center gap-2 text-sm text-ink">
+                  <input
+                    type="checkbox"
+                    name="categoryIds"
+                    value={category.id}
+                    className="h-4 w-4 rounded border-border text-brand-coral focus:ring-brand-coral/40"
+                  />
+                  {category.name}
+                </label>
+              ))}
+            </div>
+            {errors.categoryIds && <p className="text-sm text-red-600">{errors.categoryIds}</p>}
+          </div>
+        </>
       )}
 
       <FormField

@@ -8,6 +8,7 @@ import {
   businessProfileSchema,
   socialLinkAddSchema,
   socialLinkDeleteSchema,
+  businessCategoriesSchema,
 } from "@/lib/validations/business";
 
 export interface BusinessProfileState {
@@ -128,4 +129,44 @@ export async function manageSocialLinkAction(
   }
 
   return { error: "Ação inválida." };
+}
+
+export interface BusinessCategoriesState {
+  error?: string;
+}
+
+export async function updateBusinessCategoriesAction(
+  _prevState: BusinessCategoriesState,
+  formData: FormData
+): Promise<BusinessCategoriesState> {
+  const session = await requireSession();
+  const business = await getOwnedBusiness(session.user.id);
+  if (!business) {
+    return { error: "Empresa não encontrada." };
+  }
+  await requireBusinessOwner(business.ownerId);
+
+  const parsed = businessCategoriesSchema.safeParse({
+    categoryIds: formData.getAll("categoryIds"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Seleção inválida." };
+  }
+
+  await prisma.$transaction([
+    prisma.businessCategory.deleteMany({ where: { businessId: business.id } }),
+    prisma.businessCategory.createMany({
+      data: parsed.data.categoryIds.map((categoryId) => ({
+        businessId: business.id,
+        categoryId,
+      })),
+    }),
+  ]);
+
+  revalidatePath("/painel/perfil");
+  revalidatePath("/painel");
+  revalidatePath(`/empresas/${business.slug}`);
+
+  return {};
 }

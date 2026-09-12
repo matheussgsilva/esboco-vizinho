@@ -24,3 +24,16 @@ export async function generateUniqueBusinessSlug(name: string): Promise<string> 
 
   return candidate;
 }
+
+export async function generateUniqueCategorySlug(name: string): Promise<string> {
+  const base = slugify(name) || "categoria";
+  let candidate = base;
+  let suffix = 2;
+
+  while (await prisma.category.findUnique({ where: { slug: candidate }, select: { id: true } })) {
+    candidate = `${base}-${suffix}`;
+    suffix += 1;
+  }
+
+  return candidate;
+}

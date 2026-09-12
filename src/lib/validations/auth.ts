@@ -18,6 +18,7 @@ export const registerSchema = z
     confirmPassword: z.string().min(1, "Confirme a senha"),
     role: z.enum(["USER", "BUSINESS"]),
     businessName: z.string().trim().optional(),
+    categoryIds: z.array(z.string().min(1)).optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "As senhas não coincidem",
@@ -26,6 +27,10 @@ export const registerSchema = z
   .refine((data) => data.role !== "BUSINESS" || (data.businessName?.length ?? 0) > 0, {
     message: "Informe o nome do negócio",
     path: ["businessName"],
+  })
+  .refine((data) => data.role !== "BUSINESS" || (data.categoryIds?.length ?? 0) > 0, {
+    message: "Selecione ao menos uma categoria",
+    path: ["categoryIds"],
   });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

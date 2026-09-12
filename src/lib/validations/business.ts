@@ -97,3 +97,7 @@ export const productUpdateSchema = productCreateSchema.extend({
 export const productDeleteSchema = z.object({
   id: z.string().min(1),
 });
+
+export const businessCategoriesSchema = z.object({
+  categoryIds: z.array(z.string().min(1)).min(1, "Selecione ao menos uma categoria"),
+});
