@@ -11,6 +11,8 @@ import { JOB_TYPE_LABELS, WORK_MODE_LABELS } from "@/lib/validations/job";
 import { BusinessHoursTable } from "@/components/business/BusinessHoursTable";
 import { FavoriteButton } from "@/components/business/FavoriteButton";
 import { ReviewForm } from "@/components/business/ReviewForm";
+import { TrackedContactLink } from "@/components/business/TrackedContactLink";
+import { toWhatsappHref } from "@/lib/format";
 
 const getPublicBusinessBySlug = cache(async (slug: string) => {
   return prisma.business.findUnique({
@@ -68,6 +70,13 @@ export default async function EmpresaPage({ params }: PageProps) {
 
   const session = await auth();
   const isOwner = session?.user.id === business.ownerId;
+
+  if (!isOwner) {
+    // Falha ao gravar analytics não pode derrubar a página para o visitante.
+    await prisma.businessEvent
+      .create({ data: { businessId: business.id, type: "PROFILE_VIEW" } })
+      .catch(() => {});
+  }
 
   const [ownReview, favorite] = session?.user
     ? await Promise.all([
@@ -148,12 +157,29 @@ export default async function EmpresaPage({ params }: PageProps) {
           <ul className="space-y-1.5 text-sm text-ink">
             {business.phone && (
               <li>
-                <a href={`tel:${business.phone}`} className="hover:underline">
+                <TrackedContactLink
+                  businessId={business.id}
+                  type="CLICK_PHONE"
+                  href={`tel:${business.phone}`}
+                  className="hover:underline"
+                >
                   {business.phone}
-                </a>
+                </TrackedContactLink>
               </li>
             )}
-            {business.whatsapp && <li>WhatsApp: {business.whatsapp}</li>}
+            {business.whatsapp && (
+              <li>
+                WhatsApp:{" "}
+                <TrackedContactLink
+                  businessId={business.id}
+                  type="CLICK_WHATSAPP"
+                  href={toWhatsappHref(business.whatsapp)}
+                  className="text-brand-coral hover:text-brand-coral-dark hover:underline"
+                >
+                  {business.whatsapp}
+                </TrackedContactLink>
+              </li>
+            )}
             {business.email && (
               <li>
                 <a href={`mailto:${business.email}`} className="hover:underline">
@@ -185,14 +211,14 @@ export default async function EmpresaPage({ params }: PageProps) {
             <ul className="flex flex-wrap gap-3 pt-1 text-sm">
               {business.socialLinks.map((link) => (
                 <li key={link.id}>
-                  <a
+                  <TrackedContactLink
+                    businessId={business.id}
+                    type="CLICK_SOCIAL"
                     href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="text-brand-coral hover:text-brand-coral-dark hover:underline"
                   >
                     {link.platform}
-                  </a>
+                  </TrackedContactLink>
                 </li>
               ))}
             </ul>

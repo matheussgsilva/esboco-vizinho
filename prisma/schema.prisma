@@ -87,6 +87,13 @@ enum EmailType {
   RESET_PASSWORD
 }
 
+enum BusinessEventType {
+  PROFILE_VIEW
+  CLICK_PHONE
+  CLICK_WHATSAPP
+  CLICK_SOCIAL
+}
+
 // ---------------------------------------------------------------------------
 // Auth.js (NextAuth) models — required shape for @auth/prisma-adapter
 // ---------------------------------------------------------------------------
@@ -189,6 +196,7 @@ model Business {
   reviews    Review[]
   favorites  Favorite[]
   subscription Subscription?
+  events     BusinessEvent[]
 
   @@index([status, planType, averageRating, reviewCount])
   @@index([city])
@@ -368,4 +376,15 @@ model AuditLog {
   actor User @relation("AuditLogActor", fields: [actorId], references: [id], onDelete: Cascade)
 
   @@index([targetType, targetId])
+}
+
+model BusinessEvent {
+  id         String            @id @default(cuid())
+  businessId String
+  type       BusinessEventType
+  createdAt  DateTime          @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, type, createdAt])
 }

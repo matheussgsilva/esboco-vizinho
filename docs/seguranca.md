@@ -43,6 +43,7 @@ Ainda não implementado — recomendado antes do lançamento em produção, espe
 - `/api/auth/*` (login/cadastro — evitar brute force e credential stuffing).
 - `/api/reviews` (evitar spam de avaliações).
 - `/api/checkout` e `/api/billing-portal` (evitar abuso/geração excessiva de sessões Stripe).
+- `/api/track` (tracking de visualizações/cliques, `docs/arquitetura/` ainda sem doc dedicada): aceita eventos de qualquer visitante anônimo sem deduplicação por IP/sessão — hoje alguém poderia poluir as estatísticas de um negócio com requisições forjadas. Aceito conscientemente por ora, mesma lógica dos outros itens desta lista.
 
 Sugestão: Upstash Ratelimit (Redis serverless, integra bem com a Vercel) atrás de um `lib/rate-limit.ts`.
 
