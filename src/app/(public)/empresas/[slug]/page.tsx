@@ -328,6 +328,18 @@ export default async function EmpresaPage({ params }: PageProps) {
                 <p className="text-xs text-ink-muted">
                   {review.user.name ?? "Consumidor"} · {dateFormatter.format(review.createdAt)}
                 </p>
+
+                {review.ownerResponse && (
+                  <div className="ml-4 space-y-1 rounded-md bg-surface-lilac px-3 py-2">
+                    <p className="text-xs font-medium text-ink">Resposta de {business.name}</p>
+                    <p className="text-sm text-ink">{review.ownerResponse}</p>
+                    {review.ownerRespondedAt && (
+                      <p className="text-xs text-ink-muted">
+                        {dateFormatter.format(review.ownerRespondedAt)}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

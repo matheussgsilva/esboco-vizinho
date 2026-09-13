@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { PlaceholderPage } from "@/components/ui/PlaceholderPage";
 import { Pagination } from "@/components/ui/Pagination";
 import { StarRating } from "@/components/ui/StarRating";
+import { OwnerResponseForm } from "@/components/business/OwnerResponseForm";
 
 const PAGE_SIZE = 20;
 
@@ -63,6 +64,12 @@ export default async function PainelAvaliacoesPage({
                 {review.user.name ?? "Consumidor"} ·{" "}
                 {new Intl.DateTimeFormat("pt-BR").format(review.createdAt)}
               </p>
+
+              <OwnerResponseForm
+                reviewId={review.id}
+                slug={business.slug}
+                existingResponse={review.ownerResponse}
+              />
             </div>
           ))}
         </div>

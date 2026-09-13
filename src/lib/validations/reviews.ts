@@ -23,3 +23,20 @@ export const favoriteToggleSchema = z.object({
   businessId: z.string().min(1),
   slug: z.string().min(1),
 });
+
+const ownerResponseText = z
+  .string()
+  .trim()
+  .min(1, "Escreva uma resposta")
+  .max(1000, "Resposta muito longa");
+
+export const ownerResponseUpsertSchema = z.object({
+  reviewId: z.string().min(1),
+  slug: z.string().min(1),
+  response: ownerResponseText,
+});
+
+export const ownerResponseDeleteSchema = z.object({
+  reviewId: z.string().min(1),
+  slug: z.string().min(1),
+});
