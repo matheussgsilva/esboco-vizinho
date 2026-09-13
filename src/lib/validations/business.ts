@@ -101,3 +101,39 @@ export const productDeleteSchema = z.object({
 export const businessCategoriesSchema = z.object({
   categoryIds: z.array(z.string().min(1)).min(1, "Selecione ao menos uma categoria"),
 });
+
+const optionalDate = z.preprocess(
+  (v) => (v === "" || v == null ? undefined : v),
+  z.coerce.date().optional()
+);
+
+const promotionBaseFields = {
+  title: z.string().trim().min(1, "Informe o título da promoção").max(120),
+  discountLabel: optionalTrimmed(40),
+  description: optionalTrimmed(2000),
+  startsAt: optionalDate,
+  endsAt: optionalDate,
+  isActive: z.preprocess((v) => v === "on" || v === true, z.boolean()),
+};
+
+function endsAfterStarts(data: { startsAt?: Date; endsAt?: Date }) {
+  return !data.startsAt || !data.endsAt || data.endsAt >= data.startsAt;
+}
+
+export const promotionCreateSchema = z
+  .object(promotionBaseFields)
+  .refine(endsAfterStarts, {
+    message: "A data de término deve ser depois da data de início",
+    path: ["endsAt"],
+  });
+
+export const promotionUpdateSchema = z
+  .object({ id: z.string().min(1), ...promotionBaseFields })
+  .refine(endsAfterStarts, {
+    message: "A data de término deve ser depois da data de início",
+    path: ["endsAt"],
+  });
+
+export const promotionDeleteSchema = z.object({
+  id: z.string().min(1),
+});

@@ -33,6 +33,16 @@ const getPublicBusinessBySlug = cache(async (slug: string) => {
         take: 10,
         include: { user: { select: { name: true } } },
       },
+      promotions: {
+        where: {
+          isActive: true,
+          AND: [
+            { OR: [{ startsAt: null }, { startsAt: { lte: new Date() } }] },
+            { OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }] },
+          ],
+        },
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
 });
@@ -150,6 +160,32 @@ export default async function EmpresaPage({ params }: PageProps) {
 
         {business.description && <p className="text-sm text-ink">{business.description}</p>}
       </section>
+
+      {business.promotions.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-ink">Promoções</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {business.promotions.map((promotion) => (
+              <div
+                key={promotion.id}
+                className="space-y-1.5 rounded-lg border border-border bg-surface-blush/40 p-4"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <h3 className="font-medium text-ink">{promotion.title}</h3>
+                  {promotion.discountLabel && (
+                    <span className="shrink-0 rounded-full bg-brand-coral px-2.5 py-1 text-xs font-medium text-white">
+                      {promotion.discountLabel}
+                    </span>
+                  )}
+                </div>
+                {promotion.description && (
+                  <p className="text-sm text-ink-muted">{promotion.description}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
         <section className="space-y-3">

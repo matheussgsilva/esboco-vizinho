@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Package,
   Star,
+  Tag,
   type LucideIcon,
 } from "lucide-react";
 
@@ -22,6 +23,7 @@ export const PAINEL_NAV_ITEMS: PainelNavItem[] = [
   { href: "/painel/perfil", label: "Perfil", icon: Building2 },
   { href: "/painel/horarios", label: "Horários", icon: Clock },
   { href: "/painel/produtos", label: "Produtos", icon: Package },
+  { href: "/painel/promocoes", label: "Promoções", icon: Tag },
   { href: "/painel/vagas", label: "Vagas", icon: Briefcase },
   { href: "/painel/fotos", label: "Fotos", icon: ImageIcon },
   { href: "/painel/avaliacoes", label: "Avaliações", icon: Star },
