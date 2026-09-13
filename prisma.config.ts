@@ -6,8 +6,8 @@ import { defineConfig } from "prisma/config";
 // for DATABASE_URL. dotenv does not overwrite a key already set in process.env,
 // so loading .env.local first makes it win over .env for any variable defined
 // in both.
-loadEnv({ path: ".env.local" });
-loadEnv({ path: ".env" });
+loadEnv({ path: ".env.local", quiet: true });
+loadEnv({ path: ".env", quiet: true });
 
 // `env()` do prisma/config lança (PrismaConfigEnvError) se a variável não existir,
 // e este arquivo é carregado por TODO comando prisma, inclusive `generate` — que

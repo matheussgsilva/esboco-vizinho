@@ -1,6 +1,6 @@
 import { config as loadEnv } from "dotenv";
-loadEnv({ path: ".env.local" });
-loadEnv({ path: ".env" });
+loadEnv({ path: ".env.local", quiet: true });
+loadEnv({ path: ".env", quiet: true });
 
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "../generated/client";
