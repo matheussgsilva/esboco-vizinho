@@ -13,6 +13,7 @@ Schema completo em [`prisma/schema.prisma`](../../prisma/schema.prisma). Resumo 
 - **Category** / **BusinessCategory** — N:N entre empresa e categoria, com suporte a subcategoria via auto-relação em `Category`.
 - **BusinessHours** — um registro por dia da semana (`@@unique([businessId, dayOfWeek])`).
 - **Product** — produtos/serviços oferecidos pela empresa; `price` opcional (nem todo serviço tem preço fixo).
+- **Promotion** — anúncio geral da empresa (não vinculado a um `Product`), com `discountLabel` livre (ex: "20% OFF") e janela de validade opcional (`startsAt`/`endsAt`). Página pública mostra só as com `isActive: true` e dentro da janela; painel mostra todas (sem fechamento automático por cron).
 - **BusinessPhoto** / **SocialLink** — galeria e redes sociais, cada uma N:1 com `Business`.
 - **Review** — `rating` (1–5) + `comment` opcional, um por par `(businessId, userId)` (`@@unique`) — usuário edita em vez de duplicar. `status` permite moderação (`PUBLISHED/FLAGGED/REMOVED`). `ownerResponse`/`ownerRespondedAt` opcionais: uma resposta pública do dono do negócio por review (não uma thread), só permitida enquanto `status === PUBLISHED`.
 - **Favorite** — par único `(userId, businessId)`.
