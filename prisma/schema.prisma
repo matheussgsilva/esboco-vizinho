@@ -311,6 +311,9 @@ model Review {
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
 
+  ownerResponse    String?   @db.Text
+  ownerRespondedAt DateTime?
+
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 

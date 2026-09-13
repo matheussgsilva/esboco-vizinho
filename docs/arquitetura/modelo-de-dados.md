@@ -14,7 +14,7 @@ Schema completo em [`prisma/schema.prisma`](../../prisma/schema.prisma). Resumo 
 - **BusinessHours** — um registro por dia da semana (`@@unique([businessId, dayOfWeek])`).
 - **Product** — produtos/serviços oferecidos pela empresa; `price` opcional (nem todo serviço tem preço fixo).
 - **BusinessPhoto** / **SocialLink** — galeria e redes sociais, cada uma N:1 com `Business`.
-- **Review** — `rating` (1–5) + `comment` opcional, um por par `(businessId, userId)` (`@@unique`) — usuário edita em vez de duplicar. `status` permite moderação (`PUBLISHED/FLAGGED/REMOVED`).
+- **Review** — `rating` (1–5) + `comment` opcional, um por par `(businessId, userId)` (`@@unique`) — usuário edita em vez de duplicar. `status` permite moderação (`PUBLISHED/FLAGGED/REMOVED`). `ownerResponse`/`ownerRespondedAt` opcionais: uma resposta pública do dono do negócio por review (não uma thread), só permitida enquanto `status === PUBLISHED`.
 - **Favorite** — par único `(userId, businessId)`.
 - **Subscription** — espelho local da assinatura Stripe (ver [assinaturas-stripe.md](./assinaturas-stripe.md)).
 - **ProcessedWebhookEvent** — idempotência de webhooks do Stripe (Stripe pode reenviar o mesmo evento).

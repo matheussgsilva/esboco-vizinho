@@ -50,6 +50,8 @@ export default async function MinhaContaAvaliacoesPage({
                 rating: review.rating,
                 comment: review.comment,
                 createdAt: review.createdAt,
+                ownerResponse: review.ownerResponse,
+                ownerRespondedAt: review.ownerRespondedAt,
               }}
             />
           ))}
