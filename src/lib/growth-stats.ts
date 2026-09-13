@@ -54,6 +54,29 @@ export function monthOverMonthDelta(buckets: { value: number }[]): MonthDelta {
   return { percent: Math.abs(percent), direction: percent > 0 ? "up" : "down" };
 }
 
+export function daysAgo(days: number) {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() - (days - 1));
+}
+
+export function dailyBuckets(dates: Date[], days = 30) {
+  const start = daysAgo(days);
+
+  const buckets = Array.from({ length: days }, (_, i) => {
+    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    return { label: `${d.getDate()}/${d.getMonth() + 1}`, value: 0 };
+  });
+
+  for (const date of dates) {
+    const diffDays = Math.floor((date.getTime() - start.getTime()) / 86400000);
+    if (diffDays >= 0 && diffDays < days) {
+      buckets[diffDays].value += 1;
+    }
+  }
+
+  return buckets;
+}
+
 const WEEKDAY_LABELS_PT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 export function weekdayBuckets(...dateLists: Date[][]) {

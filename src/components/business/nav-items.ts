@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   Briefcase,
   Building2,
   Clock,
@@ -24,5 +25,6 @@ export const PAINEL_NAV_ITEMS: PainelNavItem[] = [
   { href: "/painel/vagas", label: "Vagas", icon: Briefcase },
   { href: "/painel/fotos", label: "Fotos", icon: ImageIcon },
   { href: "/painel/avaliacoes", label: "Avaliações", icon: Star },
+  { href: "/painel/estatisticas", label: "Estatísticas", icon: BarChart3 },
   { href: "/painel/assinatura", label: "Assinatura", icon: CreditCard },
 ];
