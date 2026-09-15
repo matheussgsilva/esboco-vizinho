@@ -35,6 +35,11 @@ interface BusinessRow {
   categoryName: string | null;
 }
 
+// Converts a websearch_to_tsquery result into a prefix query (each lexeme gets `:*`),
+// so partial terms (e.g. "pizz") match words that start with them (e.g. "pizzaria").
+const TSQUERY_LEXEME_PATTERN = "'(\\w+)'";
+const TSQUERY_PREFIX_REPLACEMENT = "'\\1':*";
+
 const CATEGORY_NAME_SUBQUERY = Prisma.sql`(
   SELECT c.name FROM "BusinessCategory" bc
   JOIN "Category" c ON c.id = bc."categoryId"
@@ -56,7 +61,12 @@ export async function searchBusinesses(
   const query = params.query?.trim();
   if (query) {
     conditions.push(Prisma.sql`(
-      b."searchVector" @@ websearch_to_tsquery('portuguese', ${query})
+      b."searchVector" @@ to_tsquery('portuguese', regexp_replace(
+        websearch_to_tsquery('portuguese', ${query})::text,
+        ${TSQUERY_LEXEME_PATTERN},
+        ${TSQUERY_PREFIX_REPLACEMENT},
+        'g'
+      ))
       OR EXISTS (
         SELECT 1 FROM "Product" p
         WHERE p."businessId" = b.id AND p."isActive" = true AND p.name ILIKE ${"%" + query + "%"}
